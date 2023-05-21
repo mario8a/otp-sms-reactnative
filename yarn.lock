@@ -1280,6 +1280,11 @@
   "resolved" "https://registry.npmjs.org/@react-native-community/eslint-plugin/-/eslint-plugin-1.3.0.tgz"
   "version" "1.3.0"
 
+"@react-native-firebase/app-check@^17.5.0":
+  "integrity" "sha512-9ajDo2j6gBLIzuxhFR27XeZNWiEGAEUapZyCTvEYGEGFO2LzhLBVJiBkfzHSWXFvZgLJKfAI8lyfPZoKID/eHA=="
+  "resolved" "https://registry.npmjs.org/@react-native-firebase/app-check/-/app-check-17.5.0.tgz"
+  "version" "17.5.0"
+
 "@react-native-firebase/app@^17.5.0", "@react-native-firebase/app@17.5.0":
   "integrity" "sha512-8DWjguVmVYmuPWI7mhXlmLB6GxKnPjUjZ4Wnnyj3Wh5uqHzgUREHEA1aH92PT84LJLZL8F6dJZk+fIyo9UyXnA=="
   "resolved" "https://registry.npmjs.org/@react-native-firebase/app/-/app-17.5.0.tgz"
