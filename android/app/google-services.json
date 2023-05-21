@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "312679976682",
+    "project_id": "tacolive-35ea7",
+    "storage_bucket": "tacolive-35ea7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312679976682:android:f33ebd4936377f5b8ad193",
+        "android_client_info": {
+          "package_name": "com.tacolive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "312679976682-ioah25i9jqa9jiabl87gltdllfusqiim.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tacolive",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "312679976682-kftfhq2e1as9bketlbdp6gc4q797no9q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCk6yP1Nco-O479FiPaQOvb5QB2YPkfM6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "312679976682-kftfhq2e1as9bketlbdp6gc4q797no9q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
