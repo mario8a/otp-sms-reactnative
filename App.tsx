@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Button,
   KeyboardAvoidingView,
   Platform,
@@ -18,6 +19,7 @@ const App = () => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingCode, setLoadingCode] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [user, setUser] = useState();
@@ -74,9 +76,41 @@ const App = () => {
   };
 
   // Handle the verify phone button press
-  const verifyPhoneNumber = async phoneNumbervalid => {
-    const confirmation = await auth().verifyPhoneNumber(phoneNumbervalid);
-    setConfirm(confirmation);
+  const verifyPhoneNumber = (phoneNumbervalid: string) => {
+    console.log('verify -------');
+    setLoadingCode(true);
+    auth().verifyPhoneNumber(phoneNumbervalid).then(() => {
+      setConfirm(true);
+      setLoadingCode(false);
+    })
+    .catch(error => {
+      console.log(error.code);
+      if (error.code === 'auth/invalid-phone-number') {
+        console.log('numero invalido');
+        Alert.alert('', 'Numero invalido');
+      }
+      
+      if (error.code === 'auth/too-many-requests') {
+        console.log('numero bloqueado');
+        Alert.alert('', 'Numero bloqueado por actividad sospechosa');
+      }
+      setLoadingCode(false);
+    })
+
+    // setLoadingCode(true);
+    // Alert.alert('', `Se a enviado codigo al numero ${phoneNumbervalid}`);
+    // console.log('verigy -------');
+    // try {
+    //   const confirmation = await auth().verifyPhoneNumber(phoneNumbervalid);
+    //   console.log('confirmation ------', confirmation);
+    //   setConfirm(confirmation);
+    //   setLoadingCode(false);
+    // } catch (error) {
+    //   console.log('error code ------');
+    //   console.log('error', error.code);
+    //   Alert.alert('', `Algo salio mal verifyPhoneNumber ${error}`);
+    //   setLoadingCode(false);
+    // }
   };
 
   const confirmCode = async () => {
@@ -87,11 +121,11 @@ const App = () => {
       );
       let userData = await auth().currentUser.linkWithCredential(credential);
       setUser(userData.user);
-      // eslint-disable-next-line no-catch-shadow
     } catch (error) {
       if (error.code === 'auth/invalid-verification-code') {
         console.log('Invalid code.');
       } else {
+        Alert.alert('', 'Algo salio mal confirmCode');
         console.log('Account linking error');
       }
     }
@@ -113,9 +147,7 @@ const App = () => {
   };
 
   const submitPhone = () => {
-    console.log('PhoneNumber');
     const formatNumber = `+52${phoneNumber}`;
-    console.log('firmat----', formatNumber);
     verifyPhoneNumber(formatNumber);
   };
 
@@ -165,12 +197,16 @@ const App = () => {
                   placeholder="Numero de telefono"
                   onChangeText={onPhoneChange}
                 />
-                <Button title="Verify Phone Number" onPress={submitPhone} />
+                <Button
+                  disabled={loadingCode}
+                  title="Verify Phone Number"
+                  onPress={submitPhone}
+                />
               </>
             ) : (
               <>
                 <TextInput value={code} keyboardType='number-pad' onChangeText={text => setCode(text)} />
-                <Button title="Confirm Code" onPress={() => confirmCode()} />
+                <Button title="Confirm Code" onPress={confirmCode} />
               </>
             )
           ) : (

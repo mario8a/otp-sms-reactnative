@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "312679976682-mo6doqui9sg1f64cuct3fv6pr1l6tfsq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tacolive",
+            "certificate_hash": "f148a413326b503f281b4c1d35bc0b9be465d9c2"
+          }
+        },
+        {
+          "client_id": "312679976682-udi9c5pqqokuodf5g8b7l5rt6r04fg7h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tacolive",
+            "certificate_hash": "2d1284b9e3f354b6dd3468cf191cdc16116a298e"
+          }
+        },
+        {
           "client_id": "312679976682-kftfhq2e1as9bketlbdp6gc4q797no9q.apps.googleusercontent.com",
           "client_type": 3
         }
