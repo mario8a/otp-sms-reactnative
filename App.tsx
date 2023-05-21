@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  Button,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -16,12 +17,15 @@ const App = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [initializing, setInitializing] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [user, setUser] = useState();
+  // If null, no SMS has been sent
+  const [confirm, setConfirm] = useState(null);
+  const [code, setCode] = useState('');
 
   const onAuthStateChanged = user => {
-    console.log('user???', user);
     setUser(user);
     if (initializing) setInitializing(false);
   };
@@ -32,14 +36,23 @@ const App = () => {
   }, []);
 
   const onPasswordChange = (e: string) => {
+    setError('');
     setPassword(e);
   };
 
   const onEmailChange = (e: string) => {
+    setError('');
     setEmail(e);
   };
 
-  const createUser = (emailInput: string, passwordInput: string) => {
+  const onPhoneChange = (e: string) => {
+    setPhoneNumber(e);
+  };
+
+  const createUserByEmailAndPassword = (
+    emailInput: string,
+    passwordInput: string,
+  ) => {
     setLoading(true);
     auth()
       .createUserWithEmailAndPassword(emailInput, passwordInput)
@@ -60,10 +73,35 @@ const App = () => {
       });
   };
 
+  // Handle the verify phone button press
+  const verifyPhoneNumber = async phoneNumbervalid => {
+    const confirmation = await auth().verifyPhoneNumber(phoneNumbervalid);
+    setConfirm(confirmation);
+  };
+
+  const confirmCode = async () => {
+    try {
+      const credential = auth.PhoneAuthProvider.credential(
+        confirm.verificationId,
+        code,
+      );
+      let userData = await auth().currentUser.linkWithCredential(credential);
+      setUser(userData.user);
+      // eslint-disable-next-line no-catch-shadow
+    } catch (error) {
+      if (error.code === 'auth/invalid-verification-code') {
+        console.log('Invalid code.');
+      } else {
+        console.log('Account linking error');
+      }
+    }
+  };
+
   const signOut = () => {
     auth()
       .signOut()
       .then(() => console.log('User signed out!'));
+    setLoading(false);
   };
 
   const submit = () => {
@@ -71,23 +109,17 @@ const App = () => {
       setError('Llene los campos');
       return;
     }
-    createUser(email, password);
+    createUserByEmailAndPassword(email, password);
+  };
+
+  const submitPhone = () => {
+    console.log('PhoneNumber');
+    const formatNumber = `+52${phoneNumber}`;
+    console.log('firmat----', formatNumber);
+    verifyPhoneNumber(formatNumber);
   };
 
   if (initializing) return null;
-
-  if (user) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>Hola {user.email}</Text>
-        <TouchableOpacity style={styles.button} onPress={signOut}>
-          <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}}>
-            Cerrar sesion
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.sectionContainer}>
@@ -95,27 +127,60 @@ const App = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View>
           <Text style={styles.sectionTitle}>TacoLive</Text>
-          <TextInput
-            keyboardType="email-address"
-            style={styles.inputStype}
-            value={email}
-            placeholder="Correo electronico"
-            onChangeText={onEmailChange}
-          />
-          <TextInput
-            secureTextEntry={true}
-            value={password}
-            style={{...styles.inputStype, marginTop: 10}}
-            placeholder="Contraseña"
-            onChangeText={onPasswordChange}
-          />
-          {error && <Text style={{color: 'red'}}>{error}</Text>}
+          {!user ? (
+            <>
+              <TextInput
+                keyboardType="email-address"
+                style={styles.inputStype}
+                value={email}
+                placeholder="Correo electronico"
+                onChangeText={onEmailChange}
+              />
+              <TextInput
+                secureTextEntry={true}
+                value={password}
+                style={{...styles.inputStype, marginTop: 10}}
+                placeholder="Contraseña"
+                onChangeText={onPasswordChange}
+              />
+              {error && <Text style={{color: 'red'}}>{error}</Text>}
 
-          <TouchableOpacity style={styles.button} onPress={submit}>
-            <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}} disabled={loading}>
-              Registrarse
+              <TouchableOpacity
+                style={loading ? styles.butonDisabled : styles.button}
+                onPress={submit}
+                disabled={loading}>
+                <Text
+                  style={{color: 'white', fontSize: 20, textAlign: 'center'}}>
+                  Registrarse
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : !user.phoneNumber ? (
+            !confirm ? (
+              <>
+                <TextInput
+                  keyboardType="number-pad"
+                  value={phoneNumber}
+                  style={{...styles.inputStype, marginTop: 10, marginBottom: 10}}
+                  placeholder="Numero de telefono"
+                  onChangeText={onPhoneChange}
+                />
+                <Button title="Verify Phone Number" onPress={submitPhone} />
+              </>
+            ) : (
+              <>
+                <TextInput value={code} keyboardType='number-pad' onChangeText={text => setCode(text)} />
+                <Button title="Confirm Code" onPress={() => confirmCode()} />
+              </>
+            )
+          ) : (
+            <>
+            <Text>
+              Welcome! {user.phoneNumber} linked with {user.email}
             </Text>
-          </TouchableOpacity>
+            <Button title="Cerrar sesion" onPress={signOut} />
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -142,6 +207,13 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'blue',
+    color: 'white',
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 15,
+  },
+  butonDisabled: {
+    backgroundColor: 'gray',
     color: 'white',
     padding: 12,
     borderRadius: 12,
