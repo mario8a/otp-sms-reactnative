@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {
   Alert,
@@ -5,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -24,17 +24,20 @@ const App = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [user, setUser] = useState();
   // If null, no SMS has been sent
-  const [confirm, setConfirm] = useState(null);
+  const [confirm, setConfirm] = useState<boolean | null>(null);
   const [code, setCode] = useState('');
 
-  const onAuthStateChanged = user => {
-    setUser(user);
-    if (initializing) setInitializing(false);
+  const onAuthStateChanged = (userAuth: any) => {
+    setUser(userAuth);
+    if (initializing) {
+      setInitializing(false);
+    }
   };
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onPasswordChange = (e: string) => {
@@ -61,6 +64,7 @@ const App = () => {
       .then(() => {
         console.log('User account created & signed in!');
       })
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       .catch(error => {
         if (error.code === 'auth/email-already-in-use') {
           console.log('That email address is already in use!');
@@ -77,25 +81,27 @@ const App = () => {
 
   // Handle the verify phone button press
   const verifyPhoneNumber = (phoneNumbervalid: string) => {
-    console.log('verify -------');
     setLoadingCode(true);
-    auth().verifyPhoneNumber(phoneNumbervalid).then(() => {
-      setConfirm(true);
-      setLoadingCode(false);
-    })
-    .catch(error => {
-      console.log(error.code);
-      if (error.code === 'auth/invalid-phone-number') {
-        console.log('numero invalido');
-        Alert.alert('', 'Numero invalido');
-      }
-      
-      if (error.code === 'auth/too-many-requests') {
-        console.log('numero bloqueado');
-        Alert.alert('', 'Numero bloqueado por actividad sospechosa');
-      }
-      setLoadingCode(false);
-    })
+    auth()
+      .verifyPhoneNumber(phoneNumbervalid)
+      .then(() => {
+        setConfirm(true);
+        setLoadingCode(false);
+      })
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      .catch(error => {
+        console.log(error.code);
+        if (error.code === 'auth/invalid-phone-number') {
+          console.log('numero invalido');
+          Alert.alert('', 'Numero invalido');
+        }
+
+        if (error.code === 'auth/too-many-requests') {
+          console.log('numero bloqueado');
+          Alert.alert('', 'Numero bloqueado por actividad sospechosa');
+        }
+        setLoadingCode(false);
+      });
 
     // setLoadingCode(true);
     // Alert.alert('', `Se a enviado codigo al numero ${phoneNumbervalid}`);
@@ -121,6 +127,7 @@ const App = () => {
       );
       let userData = await auth().currentUser.linkWithCredential(credential);
       setUser(userData.user);
+      // eslint-disable-next-line no-catch-shadow, @typescript-eslint/no-shadow
     } catch (error) {
       if (error.code === 'auth/invalid-verification-code') {
         console.log('Invalid code.');
@@ -151,7 +158,9 @@ const App = () => {
     verifyPhoneNumber(formatNumber);
   };
 
-  if (initializing) return null;
+  if (initializing) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.sectionContainer}>
@@ -193,7 +202,11 @@ const App = () => {
                 <TextInput
                   keyboardType="number-pad"
                   value={phoneNumber}
-                  style={{...styles.inputStype, marginTop: 10, marginBottom: 10}}
+                  style={{
+                    ...styles.inputStype,
+                    marginTop: 10,
+                    marginBottom: 10,
+                  }}
                   placeholder="Numero de telefono"
                   onChangeText={onPhoneChange}
                 />
@@ -205,16 +218,20 @@ const App = () => {
               </>
             ) : (
               <>
-                <TextInput value={code} keyboardType='number-pad' onChangeText={text => setCode(text)} />
+                <TextInput
+                  value={code}
+                  keyboardType="number-pad"
+                  onChangeText={text => setCode(text)}
+                />
                 <Button title="Confirm Code" onPress={confirmCode} />
               </>
             )
           ) : (
             <>
-            <Text>
-              Welcome! {user.phoneNumber} linked with {user.email}
-            </Text>
-            <Button title="Cerrar sesion" onPress={signOut} />
+              <Text>
+                Welcome! {user.phoneNumber} linked with {user.email}
+              </Text>
+              <Button title="Cerrar sesion" onPress={signOut} />
             </>
           )}
         </View>
